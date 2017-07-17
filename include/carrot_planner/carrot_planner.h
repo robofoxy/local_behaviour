@@ -35,9 +35,10 @@ namespace carrot_planner{
 	  void velSub(const nav_msgs::Odometry::ConstPtr& msg);
 	  
 	  nav_msgs::Odometry lastOdom;
-	  
-	  bool triangleSet;
+	  float goalx, goaly;
+	  bool odomSet, inner;
 	  float alpha, beta, gamma;
+	  	double initx, inity, initxs;
 	      
     private:
       costmap_2d::Costmap2DROS* costmap_ros_;

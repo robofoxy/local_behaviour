@@ -18,7 +18,8 @@ namespace carrot_planner {
   
   void CarrotPlanner::initialize(std::string name, costmap_2d::Costmap2DROS* costmap_ros){
     if(!initialized_){
-      triangleSet=false;
+      odomSet=false;
+      inner=false;
       costmap_ros_ = costmap_ros;
       costmap_ = costmap_ros_->getCostmap();
 
@@ -86,6 +87,8 @@ namespace carrot_planner {
     double start_x = start.pose.position.x;
     double start_y = start.pose.position.y;
 
+
+
     double diff_x = goal_x - start_x;
     double diff_y = goal_y - start_y;
     double diff_yaw = angles::normalize_angle(goal_yaw-start_yaw);
@@ -131,15 +134,56 @@ namespace carrot_planner {
     new_goal.pose.orientation.y = goal_quat.y();
     new_goal.pose.orientation.z = goal_quat.z();
     new_goal.pose.orientation.w = goal_quat.w();
-
-    
+	
+	if(!odomSet || target_x != goalx){
+	std::cout << "INITIALIZATION! " << std::endl;
+		goalx = target_x;
+		goaly = target_y;
+		initxs = start_x;
+		initx = start_x;
+		inity = start_y;
+		odomSet=true;
+	}
+	
+	if( inner && sqrt(pow(goalx - start_x,2) + pow(goaly - start_y,2) ) > 0.5){
+		std::cout << "INNER! " << std::endl;
+		if(abs(goalx-initx) > 5)
+		new_goal.pose.position.x = start_x + (goalx-initx)/10;
+		else 
+		new_goal.pose.position.x = start_x + (goalx-initx)/5;
+		if(abs(goaly - inity) > 5)
+    	new_goal.pose.position.y = start_y + (goaly-inity)/10;
+    	else 
+    	new_goal.pose.position.y = start_y + (goaly-inity)/5;
+    	if(	new_goal.pose.position.x >3.2 && new_goal.pose.position.x <3.8 ){
+    		if(goalx > new_goal.pose.position.x ){
+				new_goal.pose.position.x = new_goal.pose.position.x + 1;
+				new_goal.pose.position.y = new_goal.pose.position.y + 1;
+    		}
+    		else{
+				new_goal.pose.position.x = new_goal.pose.position.x - 1;
+				new_goal.pose.position.y = new_goal.pose.position.y - 1;
+    		}
+    	}
+    	std::cout <<"INIT : X = " << initx << ", Y = " << inity << std::endl;
+    	std::cout <<"START : X = " << start_x << ", Y = " << start_y << std::endl;
+    	std::cout <<"GOAL : X = " << goalx << ", Y = " << goaly << std::endl;
+    	std::cout <<"TEMP GOAL : X = " << new_goal.pose.position.x << ", Y = " << new_goal.pose.position.y  << std::endl;
+	}
+	else{
+		new_goal.pose.position.x = goalx;
+		new_goal.pose.position.y = goaly;
+	}
+	
     plan.push_back(new_goal);
     return (done);
   }
   
   
   void CarrotPlanner::velSub(const nav_msgs::Odometry::ConstPtr& msg){
-  	
+  	lastOdom=*msg;
+  	if(lastOdom.pose.pose.position.x <1 &&  lastOdom.pose.pose.position.y <3) inner=true;
+  	else inner=false;
   }
   
 
