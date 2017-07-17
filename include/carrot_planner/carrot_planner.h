@@ -15,6 +15,8 @@
 #include <base_local_planner/costmap_model.h>
 
 #include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/Twist.h>
+#include <nav_msgs/Odometry.h>
 
 namespace carrot_planner{
 
@@ -29,11 +31,10 @@ namespace carrot_planner{
       const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan);
       
 	  ros::NodeHandle n;
-	  ros::Subscriber sub = n.subscribe("/clicked_point", 1000, &CarrotPlanner::pointSub, this);
-	  void pointSub(const geometry_msgs::PointStamped::ConstPtr& msg);
+	  ros::Subscriber sub = n.subscribe("/odom", 1000, &CarrotPlanner::velSub, this);
+	  void velSub(const nav_msgs::Odometry::ConstPtr& msg);
 	  
-	  std::vector<float> xs;
-	  std::vector<float> ys;
+	  nav_msgs::Odometry lastOdom;
 	  
 	  bool triangleSet;
 	  float alpha, beta, gamma;

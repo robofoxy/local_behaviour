@@ -132,38 +132,14 @@ namespace carrot_planner {
     new_goal.pose.orientation.z = goal_quat.z();
     new_goal.pose.orientation.w = goal_quat.w();
 
-    if(xs.size()>=3){
-		float px=start.pose.position.x, py=start.pose.position.y;
-		
-		alpha = ((ys[1]-ys[2])*(px-xs[2]) + (xs[2]-xs[1])*(py-ys[2]))/((ys[1]-ys[2])*(xs[0]-xs[2])+(xs[2]-xs[1])*(ys[0]-ys[2]));
-		beta = ((ys[2]-ys[0])*(px-xs[2])+(xs[0]-xs[2])*(py-ys[2]))/((ys[1]-ys[2])*(xs[0]-xs[2])+(xs[2]-xs[1])*(ys[0]-ys[2]));
-		gamma = 1.0 - alpha - beta;
-		if(gamma>0 && alpha>0 && beta>0) triangleSet=true;
-	}
     
-	if(triangleSet){
-		if(alpha <= beta && alpha <= gamma){
-			new_goal.pose.position.x = xs[0];
-    		new_goal.pose.position.y = ys[0];
-    	}
-		else if (beta <= alpha && beta <= gamma){
-			new_goal.pose.position.x = xs[1];
-    		new_goal.pose.position.y = ys[1];
-    	}
-		else if (gamma <= alpha && gamma <= beta){
-			new_goal.pose.position.x = xs[2];
-    		new_goal.pose.position.y = ys[2];
-    	}
-	}
-	
     plan.push_back(new_goal);
     return (done);
   }
   
   
-  void CarrotPlanner::pointSub(const geometry_msgs::PointStamped::ConstPtr& msg){
-  	xs.push_back(msg->point.x);
-    ys.push_back(msg->point.y);
+  void CarrotPlanner::velSub(const nav_msgs::Odometry::ConstPtr& msg){
+  	
   }
   
 
